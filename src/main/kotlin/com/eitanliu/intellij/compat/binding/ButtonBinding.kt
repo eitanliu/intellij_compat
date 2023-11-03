@@ -2,15 +2,16 @@ package com.eitanliu.intellij.compat.binding
 
 import com.intellij.openapi.observable.properties.GraphProperty
 import com.intellij.ui.components.JBRadioButton
-import com.intellij.ui.dsl.builder.Cell
+import com.intellij.ui.layout.CellBuilder
+import com.intellij.ui.layout.applyToComponent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.ButtonGroup
 
 
-fun <C : JBRadioButton, T> Cell<C>.bindSelected(
+fun <C : JBRadioButton, T> CellBuilder<C>.bindSelected(
     property: GraphProperty<T>, expected: T,
     group: ButtonGroup? = null,
-): Cell<C> {
+): CellBuilder<C> {
     return applyToComponent {
         bind(property, expected, group)
     }

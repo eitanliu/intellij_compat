@@ -29,17 +29,13 @@ inline fun <V> KMutableProperty0<V>.toGraphProperty(
     }
 }
 
-fun createPropertyGraph() = try {
-    PropertyGraph()
-} catch (e: Throwable) {
-    PropertyGraph::class.java.createInstance({ sequence ->
-        sequence.sortedByDescending { it.parameterCount }
-            .first { it.parameterCount <= 2 }
-    }) {
-        when (it.parameterCount) {
-            2 -> arrayOf(null, true)
-            else -> null
-        }
+fun createPropertyGraph() = PropertyGraph::class.java.createInstance({ sequence ->
+    sequence.sortedByDescending { it.parameterCount }
+        .first { it.parameterCount <= 2 }
+}) {
+    when (it.parameterCount) {
+        2 -> arrayOf(null, true)
+        else -> null
     }
 }
 
