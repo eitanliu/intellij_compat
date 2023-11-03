@@ -1,12 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun properties(key: String) = project.findProperty(key).toString()
+fun systemEnv(key: String) = System.getenv(key)
+val jitpack = (systemEnv("JITPACK") ?: "false").toBoolean()
 
 plugins {
     kotlin("jvm") version "1.9.10"
     `java-library`
     `maven-publish`
-    id("org.jetbrains.intellij")  version "1.13.1"
+    id("org.jetbrains.intellij") version "1.13.1"
 }
 
 group = "com.eitanliu.intellij"
@@ -53,9 +55,12 @@ publishing {
         create<MavenPublication>("mavenJava") {
             artifact(tasks.getByName("jar"))
             artifact(sourcesJar)
-            groupId = "com.github.eitanliu"
-            artifactId = "intellij_compat"
-            version = "221-SNAPSHOT"
+
+            if(jitpack) {
+                groupId = systemEnv("GROUP")
+                artifactId = systemEnv("ARTIFACT")
+                version = systemEnv("VERSION")
+            }
         }
 
     }
