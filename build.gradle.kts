@@ -53,9 +53,9 @@ publishing {
         create<MavenPublication>("mavenJava") {
             artifact(tasks.getByName("jar"))
             artifact(sourcesJar)
-            // groupId = "com.xxx"
-            // artifactId = "compat"
-            // version = "1.0.0"
+            groupId = "com.github.eitanliu"
+            artifactId = "intellij_compat"
+            version = "221-SNAPSHOT"
         }
 
     }
