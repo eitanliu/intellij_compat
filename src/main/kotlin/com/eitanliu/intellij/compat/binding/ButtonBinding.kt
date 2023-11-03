@@ -1,7 +1,6 @@
 package com.eitanliu.intellij.compat.binding
 
-import com.intellij.openapi.observable.properties.ObservableMutableProperty
-import com.intellij.openapi.observable.util.lockOrSkip
+import com.intellij.openapi.observable.properties.GraphProperty
 import com.intellij.ui.components.JBRadioButton
 import com.intellij.ui.dsl.builder.Cell
 import java.util.concurrent.atomic.AtomicBoolean
@@ -9,7 +8,7 @@ import javax.swing.ButtonGroup
 
 
 fun <C : JBRadioButton, T> Cell<C>.bindSelected(
-    property: ObservableMutableProperty<T>, expected: T,
+    property: GraphProperty<T>, expected: T,
     group: ButtonGroup? = null,
 ): Cell<C> {
     return applyToComponent {
@@ -18,7 +17,7 @@ fun <C : JBRadioButton, T> Cell<C>.bindSelected(
 }
 
 fun <C : JBRadioButton, T> C.bind(
-    property: ObservableMutableProperty<T>, expected: T,
+    property: GraphProperty<T>, expected: T,
     group: ButtonGroup? = null,
 ): C = apply {
     if (group != null) model.group = group

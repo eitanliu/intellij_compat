@@ -19,6 +19,9 @@ repositories {
 dependencies {
     // implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     // implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2") {
+        exclude(group = "org.jetbrains.kotlin")
+    }
     testImplementation(kotlin("test"))
 }
 
