@@ -1,10 +1,8 @@
-@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-
 package com.eitanliu.intellij.compat.dsl
 
+import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.CellBuilder
 import javax.swing.JComponent
-import java.lang.Enum as JEnum
 
 fun <C : JComponent> CellBuilder<C>.layoutAlign(
     align: LayoutAlign
@@ -16,56 +14,48 @@ fun <C : JComponent> CellBuilder<C>.layoutAlign(
     return this
 }
 
-@Suppress("UNCHECKED_CAST")
 private fun <C : JComponent> CellBuilder<C>.layoutAlignBefore203(
     align: LayoutAlign
 ): CellBuilder<C> {
-    val clazz = Class.forName("com.intellij.ui.layout.CCFlags")
-    val enumClass = clazz as Class<out Enum<*>>
-    val cellClass = this::class.java
-    val alignMethod = cellClass.methods.first { it.name == "constraints" }
     when (align) {
         is LayoutAlignBoth -> {
-
             when {
                 align.alignX == LayoutAlignX.FILL && align.alignY == LayoutAlignY.FILL -> {
-                    val flag = JEnum.valueOf(enumClass, "push")
-                    alignMethod.invoke(this, flag)
+                    constraints(CCFlags.push)
                 }
 
                 align.alignX == LayoutAlignX.CENTER && align.alignY == LayoutAlignY.CENTER -> {
-                    val flag = JEnum.valueOf(enumClass, "grow")
-                    alignMethod.invoke(this, flag)
+                    constraints(CCFlags.grow)
                 }
 
                 else -> {
                     val horizontalAlign = when (align.alignX) {
-                        LayoutAlignX.FILL -> JEnum.valueOf(enumClass, "pushX")
-                        else -> JEnum.valueOf(enumClass, "growX")
+                        LayoutAlignX.FILL -> CCFlags.pushX
+                        else -> CCFlags.growX
                     }
                     val verticalAlign = when (align.alignY) {
-                        LayoutAlignY.FILL -> JEnum.valueOf(enumClass, "pushY")
-                        else -> JEnum.valueOf(enumClass, "growY")
+                        LayoutAlignY.FILL -> CCFlags.pushY
+                        else -> CCFlags.growY
                     }
-                    alignMethod.invoke(this, horizontalAlign, verticalAlign)
+                    constraints(horizontalAlign, verticalAlign)
                 }
             }
         }
 
         is LayoutAlignX -> {
             val horizontalAlign = when (align) {
-                LayoutAlignX.FILL -> JEnum.valueOf(enumClass, "pushX")
-                else -> JEnum.valueOf(enumClass, "growX")
+                LayoutAlignX.FILL -> CCFlags.pushX
+                else -> CCFlags.growX
             }
-            alignMethod.invoke(this, horizontalAlign)
+            constraints(horizontalAlign)
         }
 
         is LayoutAlignY -> {
             val verticalAlign = when (align) {
-                LayoutAlignY.FILL -> JEnum.valueOf(enumClass, "pushY")
-                else -> JEnum.valueOf(enumClass, "growY")
+                LayoutAlignY.FILL -> CCFlags.pushY
+                else -> CCFlags.growY
             }
-            alignMethod.invoke(this, verticalAlign)
+            constraints(verticalAlign)
         }
     }
     return this
