@@ -2,58 +2,70 @@
 
 package com.eitanliu.intellij.compat.dsl
 
-import com.intellij.ui.dsl.builder.Cell
+import com.intellij.ui.layout.CellBuilder
 import javax.swing.JComponent
 import java.lang.Enum as JEnum
 
-fun <C : JComponent> Cell<C>.layoutAlign(
+fun <C : JComponent> CellBuilder<C>.layoutAlign(
     align: LayoutAlign
-): Cell<C> {
+): CellBuilder<C> {
     try {
-        layoutAlignBefore223(align)
+        layoutAlignBefore203(align)
     } catch (e: Throwable) {
     }
     return this
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <C : JComponent> Cell<C>.layoutAlignBefore223(
+private fun <C : JComponent> CellBuilder<C>.layoutAlignBefore203(
     align: LayoutAlign
-): Cell<C> {
+): CellBuilder<C> {
+    val clazz = Class.forName("com.intellij.ui.layout.CCFlags")
+    val enumClass = clazz as Class<out Enum<*>>
+    val cellClass = this::class.java
+    val alignMethod = cellClass.methods.first { it.name == "constraints" }
     when (align) {
         is LayoutAlignBoth -> {
-            this.layoutAlignBefore223(align.alignX)
-            this.layoutAlignBefore223(align.alignY)
+
+            when {
+                align.alignX == LayoutAlignX.FILL && align.alignY == LayoutAlignY.FILL -> {
+                    val flag = JEnum.valueOf(enumClass, "push")
+                    alignMethod.invoke(this, flag)
+                }
+
+                align.alignX == LayoutAlignX.CENTER && align.alignY == LayoutAlignY.CENTER -> {
+                    val flag = JEnum.valueOf(enumClass, "grow")
+                    alignMethod.invoke(this, flag)
+                }
+
+                else -> {
+                    val horizontalAlign = when (align.alignX) {
+                        LayoutAlignX.FILL -> JEnum.valueOf(enumClass, "pushX")
+                        else -> JEnum.valueOf(enumClass, "growX")
+                    }
+                    val verticalAlign = when (align.alignY) {
+                        LayoutAlignY.FILL -> JEnum.valueOf(enumClass, "pushY")
+                        else -> JEnum.valueOf(enumClass, "growY")
+                    }
+                    alignMethod.invoke(this, horizontalAlign, verticalAlign)
+                }
+            }
         }
 
         is LayoutAlignX -> {
-            val clazz = Class.forName("com.intellij.ui.dsl.gridLayout.HorizontalAlign")
-            val enumClass = clazz as Class<out Enum<*>>
             val horizontalAlign = when (align) {
-                LayoutAlignX.LEFT -> JEnum.valueOf(enumClass, "LEFT")
-                LayoutAlignX.CENTER -> JEnum.valueOf(enumClass, "CENTER")
-                LayoutAlignX.RIGHT -> JEnum.valueOf(enumClass, "RIGHT")
-                LayoutAlignX.FILL -> JEnum.valueOf(enumClass, "FILL")
+                LayoutAlignX.FILL -> JEnum.valueOf(enumClass, "pushX")
+                else -> JEnum.valueOf(enumClass, "growX")
             }
-            val cellClass = this::class.java
-            val alignMethod = cellClass.getMethod("horizontalAlign", enumClass)
             alignMethod.invoke(this, horizontalAlign)
-            // horizontalAlign(horizontalAlign)
         }
 
         is LayoutAlignY -> {
-            val clazz = Class.forName("com.intellij.ui.dsl.gridLayout.VerticalAlign")
-            val enumClass = clazz as Class<out Enum<*>>
             val verticalAlign = when (align) {
-                LayoutAlignY.TOP -> JEnum.valueOf(enumClass, "TOP")
-                LayoutAlignY.CENTER -> JEnum.valueOf(enumClass, "CENTER")
-                LayoutAlignY.BOTTOM -> JEnum.valueOf(enumClass, "BOTTOM")
-                LayoutAlignY.FILL -> JEnum.valueOf(enumClass, "FILL")
+                LayoutAlignY.FILL -> JEnum.valueOf(enumClass, "pushY")
+                else -> JEnum.valueOf(enumClass, "growY")
             }
-            val cellClass = this::class.java
-            val alignMethod = cellClass.getMethod("verticalAlign", enumClass)
             alignMethod.invoke(this, verticalAlign)
-            // verticalAlign(verticalAlign)
         }
     }
     return this
